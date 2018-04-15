@@ -17,11 +17,6 @@ Flask-OAuthlib
    :target: https://coveralls.io/r/lepture/flask-oauthlib
    :alt: Coverage Status
 
-Notice
-------
-
-**Please use https://github.com/lepture/authlib instead**.
-
 =====
 
 Flask-OAuthlib is an extension to Flask that allows you to interact with
@@ -32,21 +27,6 @@ OAuth providers.
 Flask-OAuthlib relies on oauthlib_.
 
 .. _oauthlib: https://github.com/idan/oauthlib
-
-Sponsored by
-------------
-
-If you want to quickly add secure authentication to Flask, feel free to
-check out Auth0's Python API SDK and free plan at `auth0.com/overview`_
-|auth0 image|
-
-.. _`auth0.com/overview`: https://auth0.com/overview?utm_source=GHsponsor&utm_medium=GHsponsor&utm_campaign=flask-oauthlib&utm_content=auth
-
-.. |auth0 image| image:: https://user-images.githubusercontent.com/290496/31718461-031a6710-b44b-11e7-80f8-7c5920c73b8f.png
-   :target: https://auth0.com/overview?utm_source=GHsponsor&utm_medium=GHsponsor&utm_campaign=flask-oauthlib&utm_content=auth
-   :alt: Coverage Status
-   :width: 18px
-   :height: 18px
 
 Features
 --------
