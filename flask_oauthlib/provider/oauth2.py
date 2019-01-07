@@ -69,10 +69,11 @@ class OAuth2Provider(object):
             return jsonify(request.oauth.user)
     """
 
-    def __init__(self, app=None):
+    def __init__(self, app=None, validator_class=None):
         self._before_request_funcs = []
         self._after_request_funcs = []
         self._invalid_response = None
+        self._validator_class = validator_class
         if app:
             self.init_app(app)
 
@@ -155,7 +156,10 @@ class OAuth2Provider(object):
             if hasattr(self, '_usergetter'):
                 usergetter = self._usergetter
 
-            validator = OAuth2RequestValidator(
+            validator_class = self._validator_class
+            if validator_class is None:
+                validator_class = OAuth2RequestValidator
+            validator = validator_class(
                 clientgetter=self._clientgetter,
                 tokengetter=self._tokengetter,
                 grantgetter=self._grantgetter,
@@ -394,6 +398,10 @@ class OAuth2Provider(object):
                     return redirect(e.in_uri(self.error_uri))
                 except oauth2.OAuth2Error as e:
                     log.debug('OAuth2Error: %r', e, exc_info=True)
+                    # on auth error, we should preserve state if it's present according to RFC 6749
+                    state = request.values.get('state')
+                    if state and not e.state:
+                        e.state = state  # set e.state so e.in_uri() can add the state query parameter to redirect uri
                     return redirect(e.in_uri(redirect_uri))
                 except Exception as e:
                     log.exception(e)
@@ -413,6 +421,10 @@ class OAuth2Provider(object):
                 return redirect(e.in_uri(self.error_uri))
             except oauth2.OAuth2Error as e:
                 log.debug('OAuth2Error: %r', e, exc_info=True)
+                # on auth error, we should preserve state if it's present according to RFC 6749
+                state = request.values.get('state')
+                if state and not e.state:
+                    e.state = state  # set e.state so e.in_uri() can add the state query parameter to redirect uri
                 return redirect(e.in_uri(redirect_uri))
 
             if not isinstance(rv, bool):
@@ -421,7 +433,7 @@ class OAuth2Provider(object):
 
             if not rv:
                 # denied by user
-                e = oauth2.AccessDeniedError()
+                e = oauth2.AccessDeniedError(state=request.values.get('state'))
                 return redirect(e.in_uri(redirect_uri))
             return self.confirm_authorization_request()
         return decorated
@@ -452,6 +464,10 @@ class OAuth2Provider(object):
             return redirect(e.in_uri(self.error_uri))
         except oauth2.OAuth2Error as e:
             log.debug('OAuth2Error: %r', e, exc_info=True)
+            # on auth error, we should preserve state if it's present according to RFC 6749
+            state = request.values.get('state')
+            if state and not e.state:
+                e.state = state  # set e.state so e.in_uri() can add the state query parameter to redirect uri
             return redirect(e.in_uri(redirect_uri or self.error_uri))
         except Exception as e:
             log.exception(e)
